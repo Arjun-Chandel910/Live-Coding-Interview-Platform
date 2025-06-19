@@ -2,8 +2,11 @@ import dotenv from "dotenv";
 dotenv.config();
 import express from "express";
 import mongoose from "mongoose";
+
 import cors from "cors";
 const app = express();
+// routes
+import userRoute from "./routes/user.routes.js";
 const corsOptions = {
   origin: "*",
   method: ["POST", "GET"],
@@ -11,6 +14,8 @@ const corsOptions = {
   credentials: true,
 };
 app.use(cors(corsOptions));
+
+app.use("/api/v1/users", userRoute);
 
 import { createServer } from "http";
 const server = createServer(app);
