@@ -2,11 +2,11 @@ import dotenv from "dotenv";
 dotenv.config();
 import express from "express";
 import mongoose from "mongoose";
-
 import cors from "cors";
 const app = express();
 // routes
 import userRoute from "./routes/user.routes.js";
+//
 const corsOptions = {
   origin: "*",
   method: ["POST", "GET"],
@@ -14,6 +14,8 @@ const corsOptions = {
   credentials: true,
 };
 app.use(cors(corsOptions));
+app.use(express.json({ limit: "40kb" }));
+app.use(express.urlencoded({ limit: "40kb", extended: true }));
 
 app.use("/api/v1/users", userRoute);
 
