@@ -1,6 +1,8 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 function LandingPage() {
+  const navigate = useNavigate();
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-gray-800 text-white">
       {/* NAVBAR */}
@@ -12,7 +14,12 @@ function LandingPage() {
           <button className="hover:text-gray-400">Features</button>
           <button className="hover:text-gray-400">Practice</button>
           <button className="hover:text-gray-400">Interview</button>
-          <button className="hover:text-gray-400">Login</button>
+          <button
+            className="hover:text-gray-400"
+            onClick={() => navigate("/login")}
+          >
+            Login
+          </button>
         </div>
       </nav>
 
