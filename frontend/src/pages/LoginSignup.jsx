@@ -1,7 +1,14 @@
 import React, { useState } from "react";
+import { useGoogleLogin } from "@react-oauth/google";
+import GoogleIcon from "@mui/icons-material/Google";
 
 function LoginSignup() {
   const [isLogin, setIsLogin] = useState(true);
+
+  const login = useGoogleLogin({
+    onSuccess: (tokenResponse) => console.log(tokenResponse),
+    redirect_uri: "http://localhost:5173",
+  });
 
   return (
     <div className="min-h-screen bg-black text-white flex items-center justify-center px-4">
@@ -73,6 +80,15 @@ function LoginSignup() {
             {isLogin ? "Login" : "Signup"}
           </button>
         </form>
+
+        {/* Google Login */}
+        <div
+          onClick={login}
+          className="w-full mt-4 bg-white text-black flex items-center justify-center gap-2 py-2 rounded-md font-semibold cursor-pointer hover:bg-gray-300 transition"
+        >
+          <GoogleIcon />
+          Sign in with Google
+        </div>
       </div>
     </div>
   );
