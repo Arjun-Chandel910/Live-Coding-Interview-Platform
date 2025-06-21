@@ -3,6 +3,8 @@ import { useGoogleLogin } from "@react-oauth/google";
 import GoogleIcon from "@mui/icons-material/Google";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { showError, showSuccess } from "../utils/Toastify";
+
 function LoginSignup() {
   const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
@@ -15,14 +17,16 @@ function LoginSignup() {
             token: tokenResponse.access_token,
           }
         );
-        console.log(response.status);
         if (response.status === 200) {
           localStorage.setItem("auth-token", response.data.token);
+          showSuccess("Login successful.");
           navigate("/");
         } else {
+          showError("Login failed.");
           console.error("Login failed");
         }
       } catch (e) {
+        showError("Some Error Occured");
         console.log(e);
       }
     },
