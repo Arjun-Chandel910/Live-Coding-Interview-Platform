@@ -4,6 +4,54 @@ dotenv.config();
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import User from "../models/user.model.js";
+import axios from "axios";
+
+//gmail login
+export const googleOAuthHandler = async (req, res) => {
+  const { token } = req.body;
+
+  try {
+    const response = await axios.get(
+      "https://openidconnect.googleapis.com/v1/userinfo",
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const data = response.data;
+    console.log(data);
+
+    const { name, email } = data;
+
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      user = new User({
+        name,
+        email,
+        isGoogleUser: true,
+      });
+      await user.save();
+    } else {
+      console.log("user already exists.");
+    }
+
+    const jwtToken = jwt.sign(
+      { id: user._id, email: user.email },
+      process.env.JWT_SECRET_KEY,
+      { expiresIn: "7d" }
+    );
+
+    return res
+      .status(200)
+      .json({ token: jwtToken, message: "Login successful." });
+  } catch (e) {
+    console.error("Google OAuth Error:", e.message);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
 
 // REGISTER CONTROLLER
 export const register = async (req, res) => {

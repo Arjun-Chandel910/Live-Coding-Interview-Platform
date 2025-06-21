@@ -1,13 +1,31 @@
 import React, { useState } from "react";
 import { useGoogleLogin } from "@react-oauth/google";
 import GoogleIcon from "@mui/icons-material/Google";
-
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 function LoginSignup() {
+  const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
-
   const login = useGoogleLogin({
-    onSuccess: (tokenResponse) => console.log(tokenResponse),
-    redirect_uri: "http://localhost:5173",
+    onSuccess: async (tokenResponse) => {
+      try {
+        const response = await axios.post(
+          `${import.meta.env.VITE_API_URL}/api/v1/users/auth/google/callback`,
+          {
+            token: tokenResponse.access_token,
+          }
+        );
+        console.log(response.status);
+        if (response.status === 200) {
+          localStorage.setItem("auth-token", response.data.token);
+          navigate("/");
+        } else {
+          console.error("Login failed");
+        }
+      } catch (e) {
+        console.log(e);
+      }
+    },
   });
 
   return (

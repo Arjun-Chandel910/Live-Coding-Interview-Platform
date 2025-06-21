@@ -12,8 +12,8 @@ const userSchema = new Schema({
   },
   password: {
     type: String,
-    required: true,
   },
+  isGoogleUser: { type: Boolean, default: false },
 });
 const User = model("User", userSchema);
 export default User;
