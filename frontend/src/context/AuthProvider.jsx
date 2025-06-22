@@ -25,7 +25,24 @@ export function AuthProvider({ children }) {
     }
   };
 
-  const register = async () => {};
+  const register = async (name, email, password) => {
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/v1/users/register`,
+        {
+          name,
+          email,
+          password,
+        }
+      );
+      const token = response.data.token;
+      localStorage.setItem("auth-token", token);
+      showSuccess("User Registered.");
+      navigate("/");
+    } catch (e) {
+      showError(e.response?.data?.message || "Signup failed.");
+    }
+  };
 
   const value = { loginJwt, register };
 
