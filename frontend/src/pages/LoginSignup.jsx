@@ -4,10 +4,25 @@ import GoogleIcon from "@mui/icons-material/Google";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { showError, showSuccess } from "../utils/Toastify";
+import { useAuth } from "../context/AuthProvider";
 
 function LoginSignup() {
+  const { loginJwt, register } = useAuth();
   const navigate = useNavigate();
+
   const [isLogin, setIsLogin] = useState(true);
+
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const handleForm = (e) => {
+    e.preventDefault();
+    if (isLogin) {
+      loginJwt(email, password);
+    } else {
+      register(name, email, password);
+    }
+  };
   const login = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       try {
@@ -56,13 +71,16 @@ function LoginSignup() {
         </div>
 
         {/* Form */}
-        <form className="space-y-4">
+        <form className="space-y-4" onSubmit={handleForm}>
           {!isLogin && (
             <div>
               <label className="block text-sm mb-1">Full Name</label>
               <input
                 type="text"
+                required
                 placeholder="John Doe"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
                 className="w-full px-3 py-2 bg-gray-800 text-white rounded-md outline-none focus:ring-2 focus:ring-white"
               />
             </div>
@@ -71,6 +89,8 @@ function LoginSignup() {
             <label className="block text-sm mb-1">Email</label>
             <input
               type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
               className="w-full px-3 py-2 bg-gray-800 text-white rounded-md outline-none focus:ring-2 focus:ring-white"
             />
@@ -78,22 +98,27 @@ function LoginSignup() {
           <div>
             <label className="block text-sm mb-1">Password</label>
             <input
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               type="password"
               placeholder="••••••••"
               className="w-full px-3 py-2 bg-gray-800 text-white rounded-md outline-none focus:ring-2 focus:ring-white"
             />
           </div>
 
-          {!isLogin && (
+          {/* {!isLogin && (
             <div>
               <label className="block text-sm mb-1">Confirm Password</label>
               <input
+                required
                 type="password"
+
                 placeholder="••••••••"
                 className="w-full px-3 py-2 bg-gray-800 text-white rounded-md outline-none focus:ring-2 focus:ring-white"
               />
             </div>
-          )}
+          )} */}
 
           <button
             type="submit"
