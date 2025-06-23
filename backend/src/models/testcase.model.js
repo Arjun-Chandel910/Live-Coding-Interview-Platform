@@ -10,6 +10,10 @@ const testcaseSchema = new Schema(
       type: String,
       required: true,
     },
+    explanation: {
+      type: String,
+      required: false,
+    },
     isHidden: {
       type: Boolean,
       default: false,
@@ -17,5 +21,6 @@ const testcaseSchema = new Schema(
   },
   { timestamps: true }
 );
+
 const Testcase = model("Testcase", testcaseSchema);
 export default Testcase;
