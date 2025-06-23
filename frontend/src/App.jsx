@@ -4,6 +4,7 @@ import LandingPage from "./pages/LandingPage";
 import LoginSignup from "./pages/LoginSignup";
 import { ToastContainer } from "react-toastify";
 import { AuthProvider } from "./context/AuthProvider";
+import Question from "./pages/Question";
 function App() {
   return (
     <div>
@@ -13,6 +14,7 @@ function App() {
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<LoginSignup />} />
+            <Route path="/question" element={<Question />} />
           </Routes>
         </AuthProvider>
       </BrowserRouter>
