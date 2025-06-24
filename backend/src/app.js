@@ -6,6 +6,7 @@ import cors from "cors";
 const app = express();
 // routes
 import userRoute from "./routes/user.routes.js";
+import questionRoute from "./routes/question.routes.js";
 //
 const corsOptions = {
   origin: "*",
@@ -18,6 +19,7 @@ app.use(express.json({ limit: "40kb" }));
 app.use(express.urlencoded({ limit: "40kb", extended: true }));
 
 app.use("/api/v1/users", userRoute);
+app.use("/api/v1", questionRoute);
 
 import { createServer } from "http";
 const server = createServer(app);
