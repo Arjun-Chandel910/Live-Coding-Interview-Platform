@@ -11,7 +11,7 @@ import testcaseRoute from "./routes/testcase.route.js";
 //
 const corsOptions = {
   origin: "*",
-  method: ["POST", "GET"],
+  methods: ["POST", "GET"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
 };
@@ -20,12 +20,13 @@ app.use(express.json({ limit: "40kb" }));
 app.use(express.urlencoded({ limit: "40kb", extended: true }));
 
 app.use("/api/v1/users", userRoute);
-app.use("/api/v1", questionRoute);
+app.use("/api/v1/questions", questionRoute);
 app.use("/api/v1/testcases", testcaseRoute);
 
 import { createServer } from "http";
 const server = createServer(app);
 
+// global error listener
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;
   res.status(statusCode).json({
