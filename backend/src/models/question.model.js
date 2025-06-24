@@ -18,14 +18,14 @@ const questionSchema = new Schema(
     visibleTestCases: [
       {
         type: Schema.Types.ObjectId,
-        ref: "TestCase",
+        ref: "Testcase",
         required: true,
       },
     ],
     hiddenTestCases: [
       {
         type: Schema.Types.ObjectId,
-        ref: "TestCase",
+        ref: "Testcase",
       },
     ],
     constraints: { type: String },
