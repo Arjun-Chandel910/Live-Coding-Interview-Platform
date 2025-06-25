@@ -4,18 +4,23 @@ import LandingPage from "./pages/LandingPage";
 import LoginSignup from "./pages/LoginSignup";
 import { ToastContainer } from "react-toastify";
 import { AuthProvider } from "./context/AuthProvider";
+import { ProblemProvider } from "./context/ProblemProvider";
 import Question from "./pages/Question";
+import ProblemSet from "./pages/ProblemSet";
 function App() {
   return (
     <div>
       <ToastContainer autoClose={2500} draggable />
       <BrowserRouter>
         <AuthProvider>
-          <Routes>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/login" element={<LoginSignup />} />
-            <Route path="/question" element={<Question />} />
-          </Routes>
+          <ProblemProvider>
+            <Routes>
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/login" element={<LoginSignup />} />
+              <Route path="/problemset" element={<ProblemSet />} />
+              <Route path="/problemset/:id" element={<Question />} />
+            </Routes>
+          </ProblemProvider>
         </AuthProvider>
       </BrowserRouter>
     </div>

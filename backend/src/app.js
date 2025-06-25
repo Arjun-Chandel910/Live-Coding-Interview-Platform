@@ -7,7 +7,7 @@ const app = express();
 // routes
 import userRoute from "./routes/user.routes.js";
 import questionRoute from "./routes/question.routes.js";
-import testcaseRoute from "./routes/testcase.route.js";
+import testcaseRoute from "./routes/testcase.routes.js";
 //
 const corsOptions = {
   origin: "*",

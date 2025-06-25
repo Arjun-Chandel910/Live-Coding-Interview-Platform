@@ -1,18 +1,32 @@
 import dotenv from "dotenv";
 dotenv.config();
-import axios from "axios";
 import Question from "../models/question.model.js";
-import Testcase from "../models/testcase.model.js";
+import AppError from "../middlewares/AppError.js";
 
-export const getQuestions = async (req, res) => {
+export const getQuestions = async (req, res, next) => {
   try {
-    const questions = await Question.find({})
-      .populate("visibleTestCases")
-      .populate("hiddenTestCases");
-
-    res.json({ questions });
+    const questions = await Question.find({});
+    res.status(200).json({ questions });
   } catch (error) {
     console.error("Error fetching questions:", error);
-    res.status(500).json({ message: "Server error" });
+    return next(new AppError(500, error?.message || "Internal server error"));
+  }
+};
+
+export const getQuestionById = async (req, res, next) => {
+  const { id } = req.params;
+  try {
+    const question = await Question.findById(id)
+      .populate("hiddenTestCases")
+      .populate("visibleTestCases");
+
+    if (!question) {
+      return next(new AppError(404, "Question not found"));
+    }
+
+    return res.status(200).json(question);
+  } catch (error) {
+    console.error("Error fetching question by ID:", error);
+    return next(new AppError(500, error?.message || "Internal server error"));
   }
 };
