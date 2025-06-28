@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import { useLocation } from "react-router-dom";
 import { useProblem } from "../context/ProblemProvider";
+import Editor from "@monaco-editor/react";
 
 export default function Question() {
   const { getParticularProblem } = useProblem();
@@ -91,10 +92,11 @@ export default function Question() {
       <PanelResizeHandle className="w-2 bg-gray-600 hover:bg-gray-400 transition" />
 
       <Panel>
-        <div className="bg-[#111827] h-screen text-white p-6">
-          <h1 className="text-2xl font-bold">Code Editor Placeholder</h1>
-          {/* Replace with actual Monaco Editor later */}
-        </div>
+        <Editor
+          height="90vh"
+          defaultLanguage="javascript"
+          defaultValue="const a = 5"
+        />
       </Panel>
     </PanelGroup>
   );
