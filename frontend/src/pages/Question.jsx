@@ -8,6 +8,14 @@ export default function Question() {
   const { getParticularProblem } = useProblem();
   const id = useLocation().state.id;
 
+  const [language, setLanguage] = useState("javascript");
+
+  //monaco value
+  function handleEditorChange(value, event) {
+    console.log(event);
+    console.log(value);
+  }
+
   const [problem, setProblem] = useState();
 
   useEffect(() => {
@@ -25,7 +33,6 @@ export default function Question() {
       </div>
     );
   }
-
   return (
     <PanelGroup autoSaveId="example" direction="horizontal">
       <Panel defaultSize={50}>
@@ -92,11 +99,37 @@ export default function Question() {
       <PanelResizeHandle className="w-2 bg-gray-600 hover:bg-gray-400 transition" />
 
       <Panel>
-        <Editor
-          height="90vh"
-          defaultLanguage="javascript"
-          defaultValue="const a = 5"
-        />
+        <div className="bg-[#1e1e1e]">
+          <select
+            name="languages"
+            id="languages"
+            className="bg-gray-700 text-white mb-4"
+            onChange={(e) => setLanguage(e.target.value)}
+          >
+            <option value="java">Java</option>
+            <option value="javascript">Javascript</option>
+            <option value="c++">C++</option>
+            <option value="python">Python</option>
+          </select>
+          <Editor
+            height="90vh"
+            theme="vs-dark"
+            language={language}
+            defaultValue="// Start coding here"
+            onChange={handleEditorChange}
+            options={{
+              minimap: { enabled: false },
+              fontSize: 14,
+              quickSuggestions: false,
+              suggestOnTriggerCharacters: false,
+              tabSize: 2,
+              readOnly: false,
+            }}
+            onMount={(editor, monaco) => {
+              monaco.editor.setModelMarkers = () => {};
+            }}
+          />
+        </div>
       </Panel>
     </PanelGroup>
   );
