@@ -13,7 +13,12 @@ function LandingPage() {
         </h1>
         <div className="space-x-6">
           <button className="hover:text-gray-400">Features</button>
-          <button className="hover:text-gray-400">Practice</button>
+          <button
+            className="hover:text-gray-400"
+            onClick={() => navigate("/problemset")}
+          >
+            Practice
+          </button>
           <button className="hover:text-gray-400">Interview</button>
           <button
             className="hover:text-gray-400"

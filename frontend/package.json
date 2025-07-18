@@ -18,12 +18,12 @@
     "@react-oauth/google": "^0.12.2",
     "@tailwindcss/vite": "^4.1.10",
     "axios": "^1.10.0",
+    "buffer": "^6.0.3",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-resizable-panels": "^3.0.3",
     "react-timer-hook": "^4.0.5",
-    "react-toastify": "^11.0.5",
-    "tailwindcss": "^4.1.10"
+    "react-toastify": "^11.0.5"
   },
   "devDependencies": {
     "@eslint/js": "^9.25.0",
@@ -35,6 +35,7 @@
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^16.0.0",
     "react-router-dom": "^7.6.2",
+    "tailwindcss": "^4.1.11",
     "vite": "^6.3.5"
   }
 }

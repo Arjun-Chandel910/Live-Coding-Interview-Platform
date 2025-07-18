@@ -3,17 +3,67 @@ import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import { useLocation } from "react-router-dom";
 import { useProblem } from "../context/ProblemProvider";
 import Editor from "@monaco-editor/react";
+import { Buffer } from "buffer";
+import axios from "axios";
 
 export default function Question() {
   const { getParticularProblem } = useProblem();
   const id = useLocation().state.id;
-
-  const [language, setLanguage] = useState("javascript");
   const [problem, setProblem] = useState();
 
+  const [val, setVal] = useState(`// start coding here
+
+function main() {
+  console.log("Hello, World!");
+}
+
+main();
+`);
+  const [output, setOutput] = useState("Out put appears here ! ");
+  const [language, setLanguage] = useState("javascript");
+  const [languageId, setLanguageId] = useState(63);
+
+  // answer submittion
+  const options = {
+    method: "POST",
+    url: "https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=true&wait=true",
+    headers: {
+      "content-type": "application/json",
+      "x-rapidapi-key": "f142d4cf1fmsh14de6dd58e8ab73p1d4c63jsnb7df3fcbb12f",
+      "x-rapidapi-host": "judge0-ce.p.rapidapi.com",
+    },
+    data: {
+      source_code: Buffer.from(val).toString("base64"),
+      language_id: languageId,
+      base64_encoded: true,
+    },
+  };
+
+  const getOutput = async () => {
+    try {
+      const response = await axios.request(options);
+      const { stdout, stderr, compile_output, message, status } = response.data;
+
+      const decode = (str) =>
+        str ? Buffer.from(str, "base64").toString("utf-8") : "";
+
+      const finalOutput =
+        decode(stdout) ||
+        decode(compile_output) ||
+        decode(stderr) ||
+        decode(message) ||
+        `Status: ${status?.description}`;
+
+      setOutput(finalOutput);
+    } catch (error) {
+      console.error(error);
+      setOutput("Error: Submission failed. Check network or code format.");
+    }
+  };
+
+  // handle editor change
   function handleEditorChange(value, event) {
-    console.log(event);
-    console.log(value);
+    setVal(value);
   }
 
   useEffect(() => {
@@ -31,12 +81,71 @@ export default function Question() {
       </div>
     );
   }
+  const handleSubmition = () => {
+    getOutput();
+  };
+
+  // default coding templates
+  const defaultCodeTemplates = {
+    java: `import java.util.*;
+
+public class Main {
+    public static void main(String[] args) {
+      // start coding here
+      }
+}
+`,
+
+    python: `# start coding here
+
+def main():
+pass
+
+if __name__ == "__main__":
+    main()
+`,
+
+    cpp: `#include <iostream>
+using namespace std;
+
+int main() {
+    // start coding here
+
+    return 0;
+}
+`,
+
+    javascript: `// start coding here
+
+function main() {
+  console.log("Hello, World!");
+}
+
+main();
+`,
+  };
+  const handleLanguageSelection = (e) => {
+    const selectedLang = e.target.value;
+    setLanguage(selectedLang);
+    setVal(defaultCodeTemplates[selectedLang]);
+    setLanguageId(() => {
+      if (selectedLang == "javascript") {
+        return 63;
+      } else if (selectedLang == "java") {
+        return 62;
+      } else if (selectedLang == "cpp") {
+        return 54;
+      } else if (selectedLang == "python") {
+        return 71;
+      }
+    });
+  };
 
   return (
     <PanelGroup autoSaveId="question-page" direction="horizontal">
       {/* Left Panel: Question Info */}
       <Panel defaultSize={50}>
-        <div className="bg-[#1e1e1e] text-white h-screen p-6 overflow-y-auto scroll-smooth">
+        <div className="bg-[#1e1e1e] text-white h-screen p-6 overflow-y-auto scroll-smooth ">
           <h1 className="text-3xl font-semibold mb-4">Q : {problem.title}</h1>
           <p className="text-sm text-gray-400 mb-6">
             Difficulty:{" "}
@@ -88,9 +197,7 @@ export default function Question() {
           </div>
         </div>
       </Panel>
-
       <PanelResizeHandle className="w-2 bg-gray-600 hover:bg-gray-400 transition" />
-
       {/* Right Panel: Editor + Output vertically */}
       <Panel>
         <PanelGroup direction="vertical">
@@ -101,18 +208,26 @@ export default function Question() {
                 name="languages"
                 id="languages"
                 className="bg-gray-700 text-white mb-4"
-                onChange={(e) => setLanguage(e.target.value)}
+                onChange={handleLanguageSelection}
               >
-                <option value="java">Java</option>
                 <option value="javascript">Javascript</option>
-                <option value="c++">C++</option>
+                <option value="java">Java</option>
+                <option value="cpp">C++</option>
                 <option value="python">Python</option>
               </select>
+
+              <button
+                className="text-white  bg-blue-400 border rounded"
+                onClick={handleSubmition}
+              >
+                submit
+              </button>
               <Editor
                 height="80vh"
                 theme="vs-dark"
                 language={language}
-                defaultValue="// Start coding here"
+                value={val}
+                // value=
                 onChange={handleEditorChange}
                 options={{
                   minimap: { enabled: false },
@@ -134,8 +249,9 @@ export default function Question() {
           {/* Output Panel */}
           <Panel>
             <div className="bg-gray-900 text-white p-4 h-full overflow-y-auto">
-              <p className="text-sm">Output will be shown here...</p>
-              {/* You can replace this with actual output once code execution is integrated */}
+              <h1 className="text-2xl mb-4"> Output</h1>
+
+              <p className="text-sm">{output}</p>
             </div>
           </Panel>
         </PanelGroup>
