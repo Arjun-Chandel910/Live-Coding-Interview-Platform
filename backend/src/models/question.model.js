@@ -2,17 +2,21 @@ import { Schema, model } from "mongoose";
 
 const questionSchema = new Schema(
   {
-    title: {
-      type: String,
-      required: true,
-    },
-    description: {
-      type: String,
-      required: true,
-    },
+    title: { type: String, required: true },
+    description: { type: String, required: true },
     difficulty: {
       type: String,
       enum: ["Easy", "Medium", "Hard"],
+      required: true,
+    },
+    startCode: {
+      type: Map,
+      of: String,
+      required: true,
+    },
+    hiddenCode: {
+      type: Map,
+      of: String,
       required: true,
     },
     visibleTestCases: [
@@ -32,5 +36,6 @@ const questionSchema = new Schema(
   },
   { timestamps: true }
 );
+
 const Question = model("Question", questionSchema);
 export default Question;
