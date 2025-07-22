@@ -23,6 +23,28 @@ main();
   const [language, setLanguage] = useState("javascript");
   const [languageId, setLanguageId] = useState(63);
 
+  const ex = {
+    input: "2 3",
+    output: "5",
+  };
+
+  // java code
+  const javaCode = `
+  import java.util.*;
+
+public class Main {
+    public static void main(String[] args) {
+      Scanner sc = new Scanner(System.in);
+      int a = sc.nextInt();
+      int b = sc.nextInt();
+
+      System.out.println(new Solution().sum(a,b));
+      }
+      ${val}
+
+}
+  `;
+
   // answer submittion
   const options = {
     method: "POST",
@@ -33,9 +55,10 @@ main();
       "x-rapidapi-host": "judge0-ce.p.rapidapi.com",
     },
     data: {
-      source_code: Buffer.from(val).toString("base64"),
+      source_code: Buffer.from(javaCode).toString("base64"),
       language_id: languageId,
       base64_encoded: true,
+      stdin: Buffer.from("4 5").toString("base64"),
     },
   };
 
@@ -87,12 +110,11 @@ main();
 
   // default coding templates
   const defaultCodeTemplates = {
-    java: `import java.util.*;
-
-public class Main {
-    public static void main(String[] args) {
-      // start coding here
-      }
+    java: `static class Solution {
+    public int sum(int a, int b) {
+        // user writes logic here
+        return 0;
+    }
 }
 `,
 
