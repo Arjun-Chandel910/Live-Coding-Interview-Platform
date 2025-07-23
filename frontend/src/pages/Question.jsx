@@ -5,22 +5,18 @@ import { useProblem } from "../context/ProblemProvider";
 import Editor from "@monaco-editor/react";
 import { Buffer } from "buffer";
 import axios from "axios";
+import { showError } from "../utils/Toastify";
 
 export default function Question() {
   const { getParticularProblem } = useProblem();
+
   const id = useLocation().state.id;
+  const [startCode, setStartCode] = useState();
   const [problem, setProblem] = useState();
-
-  const [val, setVal] = useState(`// start coding here
-
-function main() {
-  console.log("Hello, World!");
-}
-
-main();
-`);
-  const [output, setOutput] = useState("Out put appears here ! ");
+  const [hiddenCode, setHiddenCode] = useState();
   const [language, setLanguage] = useState("javascript");
+  const [val, setVal] = useState("");
+  const [output, setOutput] = useState("Out put appears here ! ");
   const [languageId, setLanguageId] = useState(63);
 
   const ex = {
@@ -28,71 +24,14 @@ main();
     output: "5",
   };
 
-  // java code
-  const javaCode = `
-  import java.util.*;
-
-public class Main {
-    public static void main(String[] args) {
-      Scanner sc = new Scanner(System.in);
-      int a = sc.nextInt();
-      int b = sc.nextInt();
-
-      System.out.println(new Solution().sum(a,b));
-      }
-      ${val}
-
-}
-  `;
-
-  // answer submittion
-  const options = {
-    method: "POST",
-    url: "https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=true&wait=true",
-    headers: {
-      "content-type": "application/json",
-      "x-rapidapi-key": "f142d4cf1fmsh14de6dd58e8ab73p1d4c63jsnb7df3fcbb12f",
-      "x-rapidapi-host": "judge0-ce.p.rapidapi.com",
-    },
-    data: {
-      source_code: Buffer.from(javaCode).toString("base64"),
-      language_id: languageId,
-      base64_encoded: true,
-      stdin: Buffer.from("4 5").toString("base64"),
-    },
-  };
-
-  const getOutput = async () => {
-    try {
-      const response = await axios.request(options);
-      const { stdout, stderr, compile_output, message, status } = response.data;
-
-      const decode = (str) =>
-        str ? Buffer.from(str, "base64").toString("utf-8") : "";
-
-      const finalOutput =
-        decode(stdout) ||
-        decode(compile_output) ||
-        decode(stderr) ||
-        decode(message) ||
-        `Status: ${status?.description}`;
-
-      setOutput(finalOutput);
-    } catch (error) {
-      console.error(error);
-      setOutput("Error: Submission failed. Check network or code format.");
-    }
-  };
-
-  // handle editor change
-  function handleEditorChange(value, event) {
-    setVal(value);
-  }
-
+  // fetch question (first render)
   useEffect(() => {
     const fetchQuestion = async () => {
       const question = await getParticularProblem(id);
       setProblem(question);
+      setStartCode(question.startCode);
+      setHiddenCode(question.hiddenCode);
+      setVal(question.startCode[language]);
     };
     fetchQuestion();
   }, [id]);
@@ -104,52 +43,71 @@ public class Main {
       </div>
     );
   }
+
+  // handle editor change
+  function handleEditorChange(value, event) {
+    setVal(value);
+  }
+
   const handleSubmition = () => {
-    getOutput();
+    try {
+      const placeholder =
+        language === "python" ? "# USER CODE HERE" : "// USER CODE HERE";
+      const finalCode = hiddenCode[language].replace(placeholder, val);
+      console.log(finalCode);
+      // answer submittion
+      const options = {
+        method: "POST",
+        url: "https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=true&wait=true",
+        headers: {
+          "content-type": "application/json",
+          "x-rapidapi-key":
+            "f142d4cf1fmsh14de6dd58e8ab73p1d4c63jsnb7df3fcbb12f",
+          "x-rapidapi-host": "judge0-ce.p.rapidapi.com",
+        },
+        data: {
+          source_code: Buffer.from(finalCode).toString("base64"),
+          language_id: languageId,
+          base64_encoded: true,
+          stdin: Buffer.from("4 5").toString("base64"),
+        },
+      };
+
+      const getOutput = async () => {
+        try {
+          const response = await axios.request(options);
+          const { stdout, stderr, compile_output, message, status } =
+            response.data;
+
+          const decode = (str) =>
+            str ? Buffer.from(str, "base64").toString("utf-8") : "";
+
+          const finalOutput =
+            decode(stdout) ||
+            decode(compile_output) ||
+            decode(stderr) ||
+            decode(message) ||
+            `Status: ${status?.description}`;
+
+          setOutput(finalOutput);
+        } catch (error) {
+          console.error(error);
+          setOutput("Error: Submission failed. Check network or code format.");
+        }
+      };
+
+      getOutput();
+    } catch (e) {
+      showError(e);
+    }
   };
 
   // default coding templates
-  const defaultCodeTemplates = {
-    java: `static class Solution {
-    public int sum(int a, int b) {
-        // user writes logic here
-        return 0;
-    }
-}
-`,
 
-    python: `# start coding here
-
-def main():
-pass
-
-if __name__ == "__main__":
-    main()
-`,
-
-    cpp: `#include <iostream>
-using namespace std;
-
-int main() {
-    // start coding here
-
-    return 0;
-}
-`,
-
-    javascript: `// start coding here
-
-function main() {
-  console.log("Hello, World!");
-}
-
-main();
-`,
-  };
   const handleLanguageSelection = (e) => {
     const selectedLang = e.target.value;
     setLanguage(selectedLang);
-    setVal(defaultCodeTemplates[selectedLang]);
+    setVal(startCode[selectedLang]);
     setLanguageId(() => {
       if (selectedLang == "javascript") {
         return 63;
