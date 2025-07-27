@@ -1,16 +1,9 @@
 import mongoose from "mongoose";
-import Question from "./question.model.js"; // Make sure this path is correct
+import Question from "./question.model.js"; // ✅ Make sure this is correct
 
-// 🔐 Make sure to connect to your MongoDB first
-mongoose.connect(
-  "mongodb+srv://arjunchandel910:j7pnGgLqNgRkJ8xS@bytecode.hyz8xql.mongodb.net/?retryWrites=true&w=majority&appName=ByteCode",
-  {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  }
-);
+const MONGO_URI =
+  "mongodb+srv://arjunchandel910:j7pnGgLqNgRkJ8xS@bytecode.hyz8xql.mongodb.net/?retryWrites=true&w=majority&appName=ByteCode";
 
-console.log();
 const startCode = {
   java: `class Solution {
     public int sum(int a, int b) {
@@ -86,18 +79,33 @@ rl.on("line", function (line) {
 });`,
 };
 
-const addData = async () => {
+const main = async () => {
   try {
+    await mongoose.connect(MONGO_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    console.log("✅ MongoDB connected");
+
     const updated = await Question.findByIdAndUpdate(
       "685ad42bc4916f7e85334021",
       { startCode, hiddenCode },
       { new: true }
     );
-    console.log("Updated Question:", updated);
-    mongoose.disconnect();
+
+    if (!updated) {
+      console.log("⚠️ Question not found");
+    } else {
+      console.log("✅ Updated Question:", updated);
+    }
+
+    await mongoose.disconnect();
+    console.log("✅ MongoDB disconnected");
   } catch (err) {
-    console.error("Error updating:", err);
+    console.error("❌ Error:", err);
+    await mongoose.disconnect();
+    console.log("⚠️ Disconnected after error");
   }
 };
 
-addData();
+main();

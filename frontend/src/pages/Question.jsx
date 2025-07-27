@@ -1,15 +1,25 @@
 import React, { useEffect, useState } from "react";
-import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import { useLocation } from "react-router-dom";
 import { useProblem } from "../context/ProblemProvider";
 import Editor from "@monaco-editor/react";
 import axios from "axios";
-import { showError } from "../utils/Toastify";
+import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
-// Fallback for Buffer in browsers
+// Setup Buffer
 import { Buffer as NodeBuffer } from "buffer";
 const Buffer =
   typeof window !== "undefined" ? window.Buffer || NodeBuffer : NodeBuffer;
+
+const decode = (b64) => {
+  if (!b64) return "";
+  try {
+    return typeof atob === "function"
+      ? atob(b64)
+      : Buffer.from(b64, "base64").toString("utf-8");
+  } catch {
+    return "Invalid base64";
+  }
+};
 
 export default function Question() {
   const { getParticularProblem } = useProblem();
@@ -19,247 +29,191 @@ export default function Question() {
   const [startCode, setStartCode] = useState({});
   const [hiddenCode, setHiddenCode] = useState({});
   const [language, setLanguage] = useState("javascript");
-  const [val, setVal] = useState("");
-  const [output, setOutput] = useState([]);
   const [languageId, setLanguageId] = useState(63);
+  const [code, setCode] = useState("");
   const [testcases, setTestcases] = useState([]);
+  const [output, setOutput] = useState([]);
 
-  // Fetch problem details
+  const langMap = {
+    javascript: 63,
+    java: 62,
+    cpp: 54,
+    python: 71,
+  };
+
   useEffect(() => {
-    const fetchQuestion = async () => {
-      try {
-        const question = await getParticularProblem(id);
-        setProblem(question);
-        setStartCode(question.startCode);
-        setHiddenCode(question.hiddenCode);
-        if (question.startCode?.[language]) {
-          setVal(question.startCode[language]);
-        }
-      } catch (err) {
-        showError("Failed to fetch the question.");
-      }
-    };
-    if (id) fetchQuestion();
-  }, [id, getParticularProblem, language]);
+    if (!id) return;
+    (async () => {
+      const question = await getParticularProblem(id);
+      setProblem(question);
+      setStartCode(question.startCode || {});
+      setHiddenCode(question.hiddenCode || {});
+    })();
+  }, [id]);
 
-  // Combine visible + hidden testcases
+  useEffect(() => {
+    setCode(startCode[language] || "");
+    setLanguageId(langMap[language] || 63);
+  }, [language, startCode]);
+
   useEffect(() => {
     if (!problem) return;
-    const combined = [
+    setTestcases([
       ...(problem.visibleTestCases || []),
       ...(problem.hiddenTestCases || []),
-    ];
-    setTestcases(combined);
+    ]);
   }, [problem]);
 
-  const handleEditorChange = (value) => {
-    setVal(value);
-  };
+  const handleLanguageChange = (e) => setLanguage(e.target.value);
 
-  const handleLanguageSelection = (e) => {
-    const selectedLang = e.target.value;
-    setLanguage(selectedLang);
-    setVal(startCode[selectedLang] || "");
-    const langMap = {
-      javascript: 63,
-      java: 62,
-      cpp: 54,
-      python: 71,
-    };
-    setLanguageId(langMap[selectedLang] || 63);
-  };
+  const handleEditorChange = (value) => setCode(value);
 
-  const handleBatchSubmission = async () => {
-    try {
-      const placeholder =
-        language === "python" ? "# USER CODE HERE" : "// USER CODE HERE";
-      const finalCode = hiddenCode[language]?.replace(placeholder, val);
+  const handleSubmission = async () => {
+    const hiddenTemplate = hiddenCode[language] || "";
+    const placeholder =
+      language === "python" ? "# USER CODE HERE" : "// USER CODE HERE";
+    const finalCode = hiddenTemplate.replace(placeholder, code);
 
-      const batchPayload = {
-        submissions: testcases.map((tc) => ({
+    const requests = testcases.map((tc) =>
+      axios.post(
+        "https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=true&wait=true",
+        {
           language_id: languageId,
           source_code: Buffer.from(finalCode).toString("base64"),
           stdin: Buffer.from(tc.input).toString("base64"),
           expected_output: Buffer.from(tc.output).toString("base64"),
-          base64_encoded: true,
-          wait: false,
-        })),
-      };
-
-      const response = await axios.post(
-        "https://judge0-ce.p.rapidapi.com/submissions/batch",
-        batchPayload,
+        },
         {
           headers: {
             "x-rapidapi-host": "judge0-ce.p.rapidapi.com",
+            "x-rapidapi-key":
+              "f142d4cf1fmsh14de6dd58e8ab73p1d4c63jsnb7df3fcbb12f",
             "content-type": "application/json",
-            "x-rapidapi-key":
-              "f142d4cf1fmsh14de6dd58e8ab73p1d4c63jsnb7df3fcbb12f",
           },
         }
-      );
+      )
+    );
 
-      const tokens = response.data.map((sub) => sub.token);
-      await fetchBatchResult(tokens);
-    } catch (error) {
-      console.error(error);
-      setOutput([{ message: "Error: Submission failed." }]);
-    }
-  };
-
-  const fetchBatchResult = async (tokens) => {
     try {
-      const joinedTokens = tokens.join(",");
-      const response = await axios.get(
-        `https://judge0-ce.p.rapidapi.com/submissions/batch?tokens=${joinedTokens}&base64_encoded=true`,
-        {
-          headers: {
-            "x-rapidapi-host": "judge0-ce.p.rapidapi.com",
-            "x-rapidapi-key":
-              "f142d4cf1fmsh14de6dd58e8ab73p1d4c63jsnb7df3fcbb12f",
-          },
-        }
-      );
-
-      const decode = (b64) => (b64 ? atob(b64) : "");
-
-      const results = response.data.submissions.map((res, idx) => ({
+      const responses = await Promise.all(requests);
+      const results = responses.map((res, idx) => ({
         testcase: idx + 1,
-        status: res.status?.description,
-        stdout: decode(res.stdout),
-        stderr: decode(res.stderr),
-        message: decode(res.message),
-        expected: testcases[idx].output || "",
+        status: res.data.status.description,
+        stdout: decode(res.data.stdout),
+        stderr: decode(res.data.stderr),
+        message: decode(res.data.message),
+        expected: testcases[idx]?.output,
       }));
-      console.log(results);
       setOutput(results);
-    } catch (e) {
-      console.error(e);
-      setOutput([{ message: "Error fetching batch results." }]);
+    } catch (err) {
+      console.error("Error during individual test submissions", err);
+      setOutput([{ status: "Error", message: "Submission failed" }]);
     }
   };
 
   if (!problem) {
     return (
-      <div className="h-screen bg-[#0d1117] text-white flex items-center justify-center">
+      <div className="h-screen flex justify-center items-center text-white bg-[#0d1117]">
         Loading...
       </div>
     );
   }
 
   return (
-    <PanelGroup autoSaveId="question-page" direction="horizontal">
-      <Panel defaultSize={50}>
-        <div className="bg-[#1e1e1e] text-white h-screen p-6 overflow-y-auto">
-          <h1 className="text-3xl font-semibold mb-4">Q : {problem.title}</h1>
-          <p className="text-sm text-gray-400 mb-6">
-            Difficulty:{" "}
-            <span
-              className={
-                problem.difficulty === "Easy"
-                  ? "text-green-400"
-                  : problem.difficulty === "Medium"
-                  ? "text-yellow-400"
-                  : "text-red-400"
-              }
-            >
-              {problem.difficulty}
-            </span>
-          </p>
+    <div className="h-screen w-screen bg-[#0d1117] text-white">
+      <PanelGroup direction="horizontal">
+        {/* LEFT: Problem description */}
+        <Panel defaultSize={35} minSize={20}>
+          <div className="h-full p-6 overflow-y-auto bg-[#1e1e1e]">
+            <h1 className="text-2xl font-bold mb-4">{problem.title}</h1>
+            <p className="mb-4 text-gray-400">{problem.description}</p>
 
-          <div className="mb-6">
-            <h2 className="text-lg font-medium mb-2">Description</h2>
-            <p className="text-gray-300">{problem.description}</p>
+            <h2 className="text-lg font-semibold">Visible Test Cases</h2>
+            {problem.visibleTestCases?.map((tc, idx) => (
+              <div key={idx} className="bg-gray-800 rounded p-2 mb-2">
+                <p>
+                  <strong>Input:</strong> {tc.input}
+                </p>
+                <p>
+                  <strong>Output:</strong> {tc.output}
+                </p>
+                <p>
+                  <strong>Explanation:</strong> {tc.explanation}
+                </p>
+              </div>
+            ))}
+
+            <h2 className="text-lg font-semibold mt-4">Constraints</h2>
+            <p>{problem.constraints}</p>
           </div>
+        </Panel>
 
-          <div className="mb-6">
-            <h2 className="text-lg font-medium mb-2">Test Cases</h2>
-            <div className="space-y-4">
-              {problem.visibleTestCases?.map((tc, index) => (
-                <div
-                  key={index}
-                  className="bg-gray-800 border border-gray-600 rounded-lg p-4"
-                >
-                  <h3 className="font-semibold mb-2">Test Case {index + 1}</h3>
-                  <p className="text-gray-300">
-                    <strong>Input:</strong> {tc.input}
-                  </p>
-                  <p className="text-gray-300">
-                    <strong>Output:</strong> {tc.output}
-                  </p>
-                  <p className="text-gray-300">
-                    <strong>Explanation:</strong> {tc.explanation}
-                  </p>
+        <PanelResizeHandle className="w-2 bg-gray-700 hover:bg-gray-500 cursor-col-resize" />
+
+        {/* RIGHT: Code editor + Output vertically stacked */}
+        <Panel defaultSize={65} minSize={30}>
+          <PanelGroup direction="vertical">
+            {/* Code Editor */}
+            <Panel defaultSize={70} minSize={30}>
+              <div className="h-full flex flex-col p-4">
+                <div className="flex items-center gap-4 mb-4">
+                  <select
+                    className="bg-gray-700 px-2 py-1 rounded"
+                    value={language}
+                    onChange={handleLanguageChange}
+                  >
+                    <option value="javascript">JavaScript</option>
+                    <option value="java">Java</option>
+                    <option value="cpp">C++</option>
+                    <option value="python">Python</option>
+                  </select>
+
+                  <button
+                    className="bg-green-600 px-4 py-1 rounded hover:bg-green-700"
+                    onClick={handleSubmission}
+                  >
+                    Submit
+                  </button>
                 </div>
-              ))}
-            </div>
-          </div>
 
-          <div>
-            <h2 className="text-lg font-medium mb-2">Constraints</h2>
-            <p className="text-gray-300">{problem.constraints}</p>
-          </div>
-        </div>
-      </Panel>
+                <div className="flex-1">
+                  <Editor
+                    height="100%"
+                    theme="vs-dark"
+                    language={language}
+                    value={code}
+                    onChange={handleEditorChange}
+                    options={{ minimap: { enabled: false } }}
+                  />
+                </div>
+              </div>
+            </Panel>
 
-      <PanelResizeHandle className="w-2 bg-gray-600 hover:bg-gray-400 transition" />
+            <PanelResizeHandle className="h-2 bg-gray-700 hover:bg-gray-500 cursor-row-resize" />
 
-      <Panel>
-        <PanelGroup direction="vertical">
-          <Panel defaultSize={70}>
-            <div className="bg-[#1e1e1e] h-full p-4">
-              <select
-                className="bg-gray-700 text-white mb-4"
-                onChange={handleLanguageSelection}
-                value={language}
-              >
-                <option value="javascript">Javascript</option>
-                <option value="java">Java</option>
-                <option value="cpp">C++</option>
-                <option value="python">Python</option>
-              </select>
-
-              <button
-                className="text-white bg-blue-400 border rounded px-3 py-1 mb-4 ml-2"
-                onClick={handleBatchSubmission}
-              >
-                Submit
-              </button>
-
-              <Editor
-                height="80vh"
-                theme="vs-dark"
-                language={language}
-                value={val}
-                onChange={handleEditorChange}
-                options={{
-                  minimap: { enabled: false },
-                  fontSize: 14,
-                  tabSize: 2,
-                }}
-              />
-            </div>
-          </Panel>
-
-          <PanelResizeHandle className="h-4 bg-gray-600 hover:bg-gray-400 transition" />
-
-          <Panel>
-            <div className="bg-gray-900 text-white p-4 h-full overflow-y-auto">
-              <h1 className="text-2xl mb-4">Output</h1>
-
-              <ul className="list-disc pl-4">
-                {output.map((d, idx) => (
-                  <li key={idx}>
-                    Testcase {d.testcase || idx + 1} -{" "}
-                    <span className="text-yellow-300">{d.status}</span>:{" "}
-                    <span className="text-green-300">{d.message}</span>
-                  </li>
+            {/* Output */}
+            <Panel defaultSize={30} minSize={20}>
+              <div className="h-full p-4 overflow-y-auto bg-[#111827]">
+                <h2 className="text-xl mb-2">Output</h2>
+                {output.map((res, idx) => (
+                  <div
+                    key={idx}
+                    className="border-b border-gray-600 pb-2 mb-2 text-sm"
+                  >
+                    <p>
+                      <strong>Testcase {res.testcase}</strong> —{" "}
+                      <span className="text-yellow-400">{res.status}</span>
+                    </p>
+                    <p className="text-green-400 whitespace-pre-wrap">
+                      {res.stdout || res.stderr || res.message || "No output"}
+                    </p>
+                  </div>
                 ))}
-              </ul>
-            </div>
-          </Panel>
-        </PanelGroup>
-      </Panel>
-    </PanelGroup>
+              </div>
+            </Panel>
+          </PanelGroup>
+        </Panel>
+      </PanelGroup>
+    </div>
   );
 }
