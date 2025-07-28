@@ -9,6 +9,7 @@ import userRoute from "./routes/user.routes.js";
 import questionRoute from "./routes/question.routes.js";
 import testcaseRoute from "./routes/testcase.routes.js";
 //
+
 const corsOptions = {
   origin: "*",
   methods: ["POST", "GET"],
@@ -24,7 +25,11 @@ app.use("/api/v1/questions", questionRoute);
 app.use("/api/v1/testcases", testcaseRoute);
 
 import { createServer } from "http";
+import { Server } from "socket.io";
+import initInterviewSocket from "./socket/interview.socket.js";
 const server = createServer(app);
+const io = new Server(server, {});
+initInterviewSocket(io);
 
 // global error listener
 app.use((err, req, res, next) => {
