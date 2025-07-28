@@ -9,4 +9,4 @@ const initInterviewSocket = (io) => {
     });
   });
 };
-module.exports = initInterviewSocket;
+export default initInterviewSocket;

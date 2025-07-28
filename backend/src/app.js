@@ -28,7 +28,13 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 import initInterviewSocket from "./socket/interview.socket.js";
 const server = createServer(app);
-const io = new Server(server, {});
+const io = new Server(server, {
+  cors: {
+    origin: "https://your-frontend.com",
+    methods: ["GET", "POST"],
+    credentials: true,
+  },
+});
 initInterviewSocket(io);
 
 // global error listener
