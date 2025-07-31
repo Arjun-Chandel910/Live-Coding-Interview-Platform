@@ -61,7 +61,7 @@ export default function RoleAction() {
             )}
             {role === "interviewer" && (
               <p className="text-center mb-6">
-                Your Room ID:{" "}
+                Your Room ID:{""}
                 <strong className="text-blue-600">{roomId}</strong>
               </p>
             )}

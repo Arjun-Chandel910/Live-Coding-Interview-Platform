@@ -3,9 +3,7 @@ const messages = {};
 const initInterviewSocket = (io) => {
   io.on("connection", (socket) => {
     socket.on("join-room", (roomId) => {
-      console.log(
-        `socket ${socket.id} room at ${roomId} joined room ${roomId}`
-      );
+      console.log(` ${socket.id} joined at ${roomId}`);
       socket.join(roomId);
     });
 
