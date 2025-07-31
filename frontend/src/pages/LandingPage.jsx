@@ -1,100 +1,107 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { ParallaxProvider } from "react-scroll-parallax";
 
 function LandingPage() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-gray-800 text-white">
-      {/* NAVBAR */}
-      <nav className="flex items-center justify-between px-10 py-6 shadow-md border-b border-gray-700">
-        <h1 className="text-2xl font-bold text-white tracking-wide">
-          CodeCrush
-        </h1>
-        <div className="space-x-6">
-          <button className="hover:text-gray-400">Features</button>
-          <button
-            className="hover:text-gray-400"
-            onClick={() => navigate("/problemset")}
-          >
-            Practice
-          </button>
-          <button className="hover:text-gray-400">Interview</button>
-          <button
-            className="hover:text-gray-400"
-            onClick={() => navigate("/login")}
-          >
-            Login
-          </button>
-        </div>
-      </nav>
-
-      {/* HERO SECTION */}
-      <section className="text-center py-32 px-6 md:px-0">
-        <h2 className="text-5xl font-extrabold mb-6 leading-tight">
-          Master Coding. Ace Interviews.
-        </h2>
-        <p className="text-gray-400 text-lg mb-10 max-w-xl mx-auto">
-          Practice coding problems, get real-time feedback, and crack top tech
-          interviews with ease.
-        </p>
-        <div className="space-x-4">
-          <button className="bg-white text-black px-6 py-3 font-semibold rounded-full hover:bg-gray-300 transition duration-300">
-            Start Practicing
-          </button>
-          <button className="border border-white px-6 py-3 font-semibold rounded-full hover:bg-gray-700 transition duration-300">
-            Book Mock Interview
-          </button>
-        </div>
-      </section>
-
-      {/* FEATURES */}
-      <section className="py-20 bg-gray-900">
-        <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-3 gap-10">
-          {[
-            {
-              title: "Live Coding",
-              desc: "Practice with an in-browser editor powered by Monaco and real-time code execution.",
-            },
-            {
-              title: "Interview Mode",
-              desc: "Join interview sessions with shared IDE, video chat, and hidden test cases.",
-            },
-            {
-              title: "Smart Feedback",
-              desc: "Get insights on time complexity, edge case handling and more with Judge0.",
-            },
-          ].map((item, idx) => (
-            <div
-              key={idx}
-              className="bg-gray-800 p-8 rounded-2xl shadow-lg border border-gray-700"
+    <ParallaxProvider>
+      <div className="min-h-screen flex flex-col justify-between bg-white text-black font-sans">
+        {/* NAVBAR */}
+        <nav className="w-full flex justify-between items-center px-8 py-4 border-b border-gray-200 shadow-sm">
+          <h1 className="text-xl font-bold">CodeCrush</h1>
+          <div className="space-x-4">
+            <button className="hover:underline">Features</button>
+            <button
+              onClick={() => navigate("/problemset")}
+              className="hover:underline"
             >
-              <h3 className="text-xl font-bold mb-4">{item.title}</h3>
-              <p className="text-gray-400">{item.desc}</p>
+              Practice
+            </button>
+            <button
+              className="hover:underline"
+              onClick={() => navigate("/role")}
+            >
+              Start Interview
+            </button>
+            <button
+              onClick={() => navigate("/login")}
+              className="hover:underline"
+            >
+              Login
+            </button>
+          </div>
+        </nav>
+
+        {/* MAIN CONTENT */}
+        <main className="flex-grow">
+          {/* HERO SECTION */}
+          <section className="text-center py-16 px-6">
+            <h2 className="text-3xl font-bold mb-4">
+              Master Coding. Ace Interviews.
+            </h2>
+            <p className="text-gray-700 mb-6">
+              Practice coding problems, get real-time feedback, and crack top
+              tech interviews with ease.
+            </p>
+            <div className="space-x-4">
+              <button className="px-4 py-2 bg-black text-white rounded hover:bg-gray-800">
+                Start Practicing
+              </button>
+              <button className="px-4 py-2 border border-black rounded hover:bg-gray-100">
+                Book Mock Interview
+              </button>
             </div>
-          ))}
-        </div>
-      </section>
+          </section>
 
-      {/* CTA SECTION */}
-      <section className="text-center py-28 px-4">
-        <h3 className="text-3xl font-bold mb-6">
-          Ready to become a coding beast?
-        </h3>
-        <p className="text-gray-400 mb-8 max-w-md mx-auto">
-          Start solving real-world problems and prepare for your next big
-          interview — now.
-        </p>
-        <button className="bg-white text-black px-8 py-4 rounded-full font-bold hover:bg-gray-300 transition">
-          Get Started
-        </button>
-      </section>
+          {/* FEATURES SECTION */}
+          <section className="py-16 px-6 grid gap-8 md:grid-cols-3">
+            {[
+              {
+                title: "Live Coding",
+                desc: "Practice with an in-browser editor powered by Monaco and real-time code execution.",
+              },
+              {
+                title: "Interview Mode",
+                desc: "Join interview sessions with shared IDE, video chat, and hidden test cases.",
+              },
+              {
+                title: "Smart Feedback",
+                desc: "Get insights on time complexity, edge case handling and more with Judge0.",
+              },
+            ].map((item, idx) => (
+              <div
+                key={idx}
+                className="border border-gray-200 p-6 rounded-lg shadow-sm"
+              >
+                <h3 className="text-lg font-semibold mb-2">{item.title}</h3>
+                <p className="text-gray-600 text-sm">{item.desc}</p>
+              </div>
+            ))}
+          </section>
 
-      {/* FOOTER */}
-      <footer className="text-center py-10 text-gray-500 text-sm border-t border-gray-700">
-        &copy; {new Date().getFullYear()} CodeCrush. All rights reserved.
-      </footer>
-    </div>
+          {/* CTA SECTION */}
+          <section className="text-center py-20 px-6">
+            <h3 className="text-2xl font-semibold mb-4">
+              Ready to become a coding beast?
+            </h3>
+            <p className="text-gray-700 mb-6">
+              Start solving real-world problems and prepare for your next big
+              interview — now.
+            </p>
+            <button className="px-6 py-3 bg-black text-white rounded hover:bg-gray-800">
+              Get Started
+            </button>
+          </section>
+        </main>
+
+        {/* FOOTER */}
+        <footer className="w-full text-center py-6 text-sm text-gray-500 border-t border-gray-200">
+          &copy; {new Date().getFullYear()} CodeCrush. All rights reserved.
+        </footer>
+      </div>
+    </ParallaxProvider>
   );
 }
 

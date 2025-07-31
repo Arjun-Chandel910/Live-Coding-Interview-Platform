@@ -30,7 +30,7 @@ import initInterviewSocket from "./socket/interview.socket.js";
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "https://your-frontend.com",
+    origin: "http://localhost:5173",
     methods: ["GET", "POST"],
     credentials: true,
   },
