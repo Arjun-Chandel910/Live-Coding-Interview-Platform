@@ -2,7 +2,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { io } from "socket.io-client";
-import Daily from "@daily-co/daily-js";
 import axios from "axios";
 
 //
@@ -10,18 +9,12 @@ export const InterviewRoom = () => {
   const [messages, setMessages] = useState({});
   const [inputMessage, setInputMessage] = useState("");
   const [isChatVisible, setIsChatVisible] = useState(false);
-  const [roomUrl, setRoomUrl] = useState("");
-
   const { state } = useLocation();
   const roomId = state.roomId;
   const role = state.role;
+  const name = state.name;
 
   const socket = useRef(null);
-  console.log(role);
-
-  //
-
-  //
 
   const joinCall = () => {
     socket.current = io("http://localhost:8000", {
@@ -48,28 +41,9 @@ export const InterviewRoom = () => {
 
   const handleSendMsg = () => {
     if (!inputMessage.trim()) return;
-    socket.current.emit("message", roomId, socket.current.id, inputMessage);
+    socket.current.emit("message", roomId, name, inputMessage);
     setInputMessage("");
   };
-
-  // Daily.co
-  useEffect(() => {
-    if (role === "interviewer") {
-      const createRoom = async () => {
-        try {
-          const response = await axios.post(
-            `${import.meta.env.VITE_API_URL}/api/v1/interview/create-room`,
-            { roomId }
-          );
-          console.log(response.data); // contains roomUrl
-        } catch (err) {
-          console.error("Room creation failed:", err);
-        }
-      };
-
-      createRoom();
-    }
-  }, []);
 
   return (
     <div className="w-full h-screen flex">

@@ -9,6 +9,7 @@ import Question from "./pages/Question";
 import ProblemSet from "./pages/ProblemSet";
 import RoleAction from "./pages/Interview/RoleAction";
 import { InterviewRoom } from "./pages/Interview/InterviewRoom";
+import Setup from "./pages/Interview/Setup";
 function App() {
   return (
     <div>
@@ -22,6 +23,7 @@ function App() {
               <Route path="/problemset" element={<ProblemSet />} />
               <Route path="/role" element={<RoleAction />} />
               <Route path="/interview/:id" element={<InterviewRoom />} />
+              <Route path="/interview/room/setup" element={<Setup />} />
               <Route path="/problemset/:id" element={<Question />} />
             </Routes>
           </ProblemProvider>
