@@ -18,7 +18,7 @@ export default function RoleAction() {
   const handleJoin = () => {
     if (!roomId) return alert("Please enter or generate a Room ID");
     navigate(`/interview/${roomId}`, {
-      state: { roomId },
+      state: { roomId, role },
     });
   };
 

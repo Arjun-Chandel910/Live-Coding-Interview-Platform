@@ -8,6 +8,7 @@ const app = express();
 import userRoute from "./routes/user.routes.js";
 import questionRoute from "./routes/question.routes.js";
 import testcaseRoute from "./routes/testcase.routes.js";
+import interviewRoute from "./routes/interview.routes.js";
 //
 
 const corsOptions = {
@@ -23,6 +24,7 @@ app.use(express.urlencoded({ limit: "40kb", extended: true }));
 app.use("/api/v1/users", userRoute);
 app.use("/api/v1/questions", questionRoute);
 app.use("/api/v1/testcases", testcaseRoute);
+app.use("/api/v1/interview", interviewRoute);
 
 import { createServer } from "http";
 import { Server } from "socket.io";
