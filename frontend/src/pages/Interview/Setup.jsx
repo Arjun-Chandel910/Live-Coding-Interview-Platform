@@ -31,11 +31,11 @@ const Setup = () => {
   return (
     <div className="h-screen">
       Setup
-      <div className="flex flex-col justify-between w-1/2 h-1/2  m-auto border ">
-        <div className="m-auto rounded">
-          <video ref={myVideo} muted className="" autoPlay />
+      <div className="flex flex-col justify-between w-1/2 h-3/4  m-auto border  bg-gray-800">
+        <div className="m-auto rounded h-3/4 overflow-hidden">
+          <video ref={myVideo} muted autoPlay />
         </div>
-        <div>
+        <div className="flex  flex-row justify-between p-10 bg-zinc-500 rounded">
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
