@@ -42,6 +42,11 @@ export const InterviewRoom = () => {
   const remoteVideo = useRef(null);
   const localStream = useRef(null);
 
+  //
+  const candidateQueue = [];
+  let remoteDescriptionSet = false;
+  //
+
   useEffect(() => {
     socket.current = io("http://localhost:8000", {
       transports: ["websocket"],
@@ -82,6 +87,11 @@ export const InterviewRoom = () => {
     peerConnection.current = new RTCPeerConnection(RTCconfiguration);
     const pc = peerConnection.current;
 
+    pc.ontrack = (e) => {
+      if (remoteVideo.current) {
+        remoteVideo.current.srcObject = e.streams[0];
+      }
+    };
     localStream.current.getTracks().forEach((track) => {
       pc.addTrack(track, localStream.current);
     });
@@ -96,16 +106,14 @@ export const InterviewRoom = () => {
       }
     };
 
-    pc.ontrack = (e) => {
-      if (remoteVideo.current) {
-        remoteVideo.current.srcObject = e.streams[0];
-      }
-    };
-
     socket.current.on("ice-candidate", async ({ candidate }) => {
       if (candidate) {
         try {
-          await pc.addIceCandidate(new RTCIceCandidate(candidate));
+          if (remoteDescriptionSet) {
+            await pc.addIceCandidate(new RTCIceCandidate(candidate));
+          } else {
+            candidateQueue.push(candidate);
+          }
         } catch (e) {
           console.error("Failed to add ICE candidate:", e);
         }
@@ -133,6 +141,16 @@ export const InterviewRoom = () => {
       socket.current.on("receive-answer", async ({ answer }) => {
         try {
           await pc.setRemoteDescription(new RTCSessionDescription(answer));
+          remoteDescriptionSet = true;
+          //
+          for (const candidate of candidateQueue) {
+            try {
+              await pc.addIceCandidate(new RTCIceCandidate(candidate));
+            } catch (e) {
+              console.error("Error adding buffered ICE candidate:", e);
+            }
+          }
+          candidateQueue.length = 0; // Clear the queue of candidates
         } catch (e) {
           console.error("Error handling answer:", e);
         }
@@ -143,6 +161,17 @@ export const InterviewRoom = () => {
       socket.current.on("receive-offer", async ({ offer }) => {
         try {
           await pc.setRemoteDescription(new RTCSessionDescription(offer));
+
+          remoteDescriptionSet = true;
+          //
+          for (const candidate of candidateQueue) {
+            try {
+              await pc.addIceCandidate(new RTCIceCandidate(candidate));
+            } catch (e) {
+              console.error("Error adding buffered ICE candidate:", e);
+            }
+          }
+          candidateQueue.length = 0;
           const answer = await pc.createAnswer();
           await pc.setLocalDescription(answer);
 

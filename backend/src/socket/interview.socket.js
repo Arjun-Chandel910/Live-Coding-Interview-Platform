@@ -7,7 +7,7 @@ const initInterviewSocket = (io) => {
       socket.join(roomId);
       socket.to(roomId).emit("newUserJoined", { name });
       socket.data.name = name; // store name for later
-      socket.data.roomId = roomId; //sotre id for later
+      socket.data.roomId = roomId; //store id for later
     });
 
     //  message handling .
