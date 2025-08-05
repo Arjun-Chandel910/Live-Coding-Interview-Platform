@@ -11,6 +11,7 @@ import VideocamOffIcon from "@mui/icons-material/VideocamOff";
 import VideocamIcon from "@mui/icons-material/Videocam";
 import ChatIcon from "@mui/icons-material/Chat";
 import SpeakerNotesOffIcon from "@mui/icons-material/SpeakerNotesOff";
+import { useProblem } from "../../context/ProblemProvider";
 
 const RTCconfiguration = {
   iceServers: [
@@ -22,11 +23,24 @@ const RTCconfiguration = {
 };
 
 export const InterviewRoom = () => {
+  const { getProblems } = useProblem();
+
   const [messages, setMessages] = useState({});
   const [inputMessage, setInputMessage] = useState("");
   const [isChatVisible, setIsChatVisible] = useState(false);
   const [isVideoOn, setIsVideoOn] = useState(true);
   const [isAudioOn, setIsAudioOn] = useState(true);
+
+  const [problems, setProblems] = useState([]);
+
+  useEffect(() => {
+    const fetchProblems = async () => {
+      const questions = await getProblems();
+
+      setProblems(questions);
+    };
+    fetchProblems();
+  }, []);
 
   const { state } = useLocation();
   const roomId = state.roomId;
@@ -92,6 +106,22 @@ export const InterviewRoom = () => {
           ? [...prev[roomId], { sender, content }]
           : [{ sender, content }],
       }));
+    });
+
+    socket.current.on("toggle-audio", ({ enabled }) => {
+      if (remoteVideo.current?.srcObject) {
+        remoteVideo.current.srcObject.getAudioTracks().forEach((track) => {
+          track.enabled = enabled;
+        });
+      }
+    });
+
+    socket.current.on("toggle-video", ({ enabled }) => {
+      if (remoteVideo.current?.srcObject) {
+        remoteVideo.current.srcObject.getVideoTracks().forEach((track) => {
+          track.enabled = enabled;
+        });
+      }
     });
 
     const getMedia = async () => {
@@ -203,18 +233,19 @@ export const InterviewRoom = () => {
     const audioTracks = localStream.current?.getAudioTracks();
     if (audioTracks && audioTracks.length > 0) {
       const newState = !isAudioOn;
-      // console.log(newState);
       audioTracks[0].enabled = newState;
       setIsAudioOn(newState);
+      socket.current.emit("toggle-audio", { enabled: newState, roomId });
     }
   };
+
   const camOpen = () => {
     const videoTracks = localStream.current?.getVideoTracks();
     if (videoTracks && videoTracks.length > 0) {
       const newState = !isVideoOn;
-      // console.log(newState);
       videoTracks[0].enabled = newState;
       setIsVideoOn(newState);
+      socket.current.emit("toggle-video", { enabled: newState, roomId });
     }
   };
 
@@ -246,6 +277,17 @@ export const InterviewRoom = () => {
           </div>
         </div>
       </div>
+      {role === "interviewer" && (
+        <div>
+          <select name="cars" id="cars">
+            {problems.map((p) => (
+              <option key={p.title} value={p.title}>
+                {p.title}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
 
       <div className="bg-gray-700 flex flex-col h-[200px] justify-evenly text-green-600">
         {isAudioOn ? (

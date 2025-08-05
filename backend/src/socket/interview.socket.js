@@ -39,6 +39,13 @@ const initInterviewSocket = (io) => {
       socket.to(roomId).emit("ice-candidate", { candidate, senderId });
     });
 
+    socket.on("toggle-audio", ({ enabled, roomId }) => {
+      socket.to(roomId).emit("toggle-audio", { enabled });
+    });
+
+    socket.on("toggle-video", ({ enabled, roomId }) => {
+      socket.to(roomId).emit("toggle-video", { enabled });
+    });
     // disconnection logic
     socket.on("disconnect", () => {
       const name = socket.data.name;
