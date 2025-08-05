@@ -20,7 +20,6 @@ const Setup = () => {
     };
 
     getPermission();
-    console.log("hi");
   }, [roomId]);
 
   const handleEnterRoom = () => {
