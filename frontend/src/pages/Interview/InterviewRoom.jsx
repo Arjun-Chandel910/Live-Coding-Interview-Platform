@@ -3,6 +3,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { io } from "socket.io-client";
 import { showInfo } from "../../utils/Toastify";
+import { motion } from "motion/react";
 
 // icons
 import MicIcon from "@mui/icons-material/Mic";
@@ -252,63 +253,79 @@ export const InterviewRoom = () => {
   const chatOpen = () => setIsChatVisible(!isChatVisible);
 
   return (
-    <div className="w-full h-screen flex justify-between overflow-x-hidden">
-      <div className="flex flex-col">
-        <h1 className="text-xl p-4">Interview Room</h1>
-        <div className="flex gap-4 justify-center items-center">
-          <div>
-            <h2>You ({name})</h2>
+    <div className="w-full h-screen flex justify-between overflow-x-hidden bg-gray-100">
+      {/* Left Panel: Video Section */}
+      <div className="flex flex-col p-4 w-1/2">
+        <h1 className="text-2xl font-semibold mb-4">Interview Room</h1>
+        <div className="flex gap-6 justify-center items-center">
+          <motion.div drag className="text-center">
+            <h2 className="mb-2 font-medium">You ({name})</h2>
             <video
               ref={myVideo}
               autoPlay
               muted
               playsInline
-              className="w-[200px] rounded-4xl"
+              className="w-[200px] rounded-2xl shadow-md"
             />
-          </div>
-          <div>
-            <h2>Other User</h2>
+          </motion.div>
+          <motion.div drag className="text-center">
+            <h2 className="mb-2 font-medium">Other User</h2>
             <video
               ref={remoteVideo}
               autoPlay
               playsInline
-              className="w-[200px] rounded-4xl"
+              className="w-[200px] rounded-2xl shadow-md"
             />
-          </div>
+          </motion.div>
         </div>
       </div>
+
+      {/* Dropdown for Interviewer */}
       {role === "interviewer" && (
-        <div>
-          <select name="cars" id="cars">
+        <div className="flex items-start mt-4">
+          <select
+            className="border rounded px-3 py-2 shadow-sm bg-white text-black"
+            name="problems"
+            id="problems"
+          >
             {problems.map((p) => (
               <option key={p.title} value={p.title}>
                 {p.title}
               </option>
             ))}
           </select>
+          <motion.div
+            drag
+            whileDrag={{ scale: 1.2, backgroundColor: "red" }}
+            className="bg-red-400"
+          >
+            hi
+          </motion.div>
         </div>
       )}
 
-      <div className="bg-gray-700 flex flex-col h-[200px] justify-evenly text-green-600">
+      {/* Controls */}
+      <div className="bg-gray-700 flex flex-col items-center justify-evenly p-4 text-green-500 h-[200px] rounded-l">
         {isAudioOn ? (
-          <MicIcon onClick={micOpen} />
+          <MicIcon className="cursor-pointer" onClick={micOpen} />
         ) : (
-          <MicOffIcon onClick={micOpen} />
+          <MicOffIcon className="cursor-pointer" onClick={micOpen} />
         )}
         {isVideoOn ? (
-          <VideocamIcon onClick={camOpen} />
+          <VideocamIcon className="cursor-pointer" onClick={camOpen} />
         ) : (
-          <VideocamOffIcon onClick={camOpen} />
+          <VideocamOffIcon className="cursor-pointer" onClick={camOpen} />
         )}
         {isChatVisible ? (
-          <ChatIcon onClick={chatOpen} />
+          <ChatIcon className="cursor-pointer" onClick={chatOpen} />
         ) : (
-          <SpeakerNotesOffIcon onClick={chatOpen} />
+          <SpeakerNotesOffIcon className="cursor-pointer" onClick={chatOpen} />
         )}
       </div>
 
+      {/* Chat Panel */}
       <div
-        className={`w-1/2 h-full bg-gray-800 p-4 text-white flex flex-col transition-transform duration-1000 ${
+        className={`w-1/2 h-full bg-gray-800 p-4 text-white flex flex-col transition-transform duration-500 ease-in-out ${
           isChatVisible ? "translate-x-0" : "translate-x-full"
         }`}
       >
@@ -330,7 +347,7 @@ export const InterviewRoom = () => {
           />
           <button
             onClick={handleSendMsg}
-            className="px-4 bg-green-500 rounded-r text-white"
+            className="px-4 bg-green-500 rounded-r text-white hover:bg-green-600"
           >
             Send
           </button>

@@ -21,7 +21,7 @@ function LandingPage() {
             </button>
             <button
               className="hover:underline"
-              onClick={() => navigate("/role")}
+              onClick={() => navigate("/create-meeting")}
             >
               Start Interview
             </button>

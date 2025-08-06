@@ -10,6 +10,8 @@ import ProblemSet from "./pages/ProblemSet";
 import RoleAction from "./pages/Interview/RoleAction";
 import { InterviewRoom } from "./pages/Interview/InterviewRoom";
 import Setup from "./pages/Interview/Setup";
+import CreateMeeting from "./pages/Interview/CreateMeeting";
+import MeetingRoom from "./pages/Interview/MeetingRoom";
 function App() {
   return (
     <div>
@@ -21,6 +23,8 @@ function App() {
               <Route path="/" element={<LandingPage />} />
               <Route path="/login" element={<LoginSignup />} />
               <Route path="/problemset" element={<ProblemSet />} />
+              <Route path="/create-meeting" element={<CreateMeeting />} />
+              <Route path="/room" element={<MeetingRoom />} />
               <Route path="/role" element={<RoleAction />} />
               <Route path="/interview/:id" element={<InterviewRoom />} />
               <Route path="/interview/room/setup" element={<Setup />} />

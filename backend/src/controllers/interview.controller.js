@@ -26,3 +26,6 @@ export const createRoom = async (req, res) => {
     return res.status(500).json({ message: "Internal Server Error" });
   }
 };
+export const getMeetingHistory = async (req, res) => {
+  // complete this later
+};
