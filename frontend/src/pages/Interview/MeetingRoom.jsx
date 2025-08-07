@@ -6,16 +6,36 @@ import VideocamOffIcon from "@mui/icons-material/VideocamOff";
 import { FormControl, Select, MenuItem } from "@mui/material";
 import LinkIcon from "@mui/icons-material/Link";
 import Editor from "@monaco-editor/react";
+import axios from "axios";
 
 import * as Y from "yjs";
 import { WebrtcProvider } from "y-webrtc";
 import { MonacoBinding } from "y-monaco";
-
+import { useParams } from "react-router-dom";
+import InvModal from "../../utils/InvModal.jsx";
 export default function MeetingRoom() {
+  const { roomId } = useParams();
+  console.log(roomId);
   const [audioOn, setAudioOn] = React.useState(true);
   const [videoOn, setVideoOn] = React.useState(true);
   const [lang, setLang] = React.useState("javascript");
   const editorRef = useRef(null);
+
+  // send Invite
+  const sendInvite = async (recipientEmail, roomId, senderName) => {
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/v1/interview/send-invite`,
+        { recipientEmail, roomId, senderName }
+      );
+      console.log("Invite sent:", response.data);
+    } catch (error) {
+      console.error(
+        "Failed to send invite:",
+        error.response?.data || error.message
+      );
+    }
+  };
 
   function handleEditorDidMount(editor, monaco) {
     // here is the editor instance
@@ -23,10 +43,11 @@ export default function MeetingRoom() {
 
     editorRef.current = editor;
     const ydoc = new Y.Doc();
-    const provider = new WebrtcProvider("monaco", ydoc);
+    const provider = new WebrtcProvider(roomId, ydoc); // here roomId is the name of the room
     const type = ydoc.getText("monaco"); //This is the way to get what our IDE is showing right now.
     const monacoBinding = new MonacoBinding(
       type,
+
       editorRef.current.getModel(),
       new Set([editor]),
       provider.awareness
@@ -75,10 +96,10 @@ export default function MeetingRoom() {
           </FormControl>
         </div>
         {/* Bottom Invite Button */}
-        <button className="flex items-center justify-center w-full py-2 bg-blue-600 hover:bg-blue-500 rounded">
+        <div className="flex items-center justify-center w-full py-2 bg-blue-600 hover:bg-blue-500 rounded">
           <LinkIcon className="text-white mr-1" />
-          <span className="text-white text-xs">Invite</span>
-        </button>
+          <InvModal sendInvite={sendInvite} roomId={roomId} />{" "}
+        </div>
       </div>
 
       {/* Center Pane: Code Editor Placeholder */}

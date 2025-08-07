@@ -24,7 +24,7 @@ function App() {
               <Route path="/login" element={<LoginSignup />} />
               <Route path="/problemset" element={<ProblemSet />} />
               <Route path="/create-meeting" element={<CreateMeeting />} />
-              <Route path="/room" element={<MeetingRoom />} />
+              <Route path="/room/:roomId" element={<MeetingRoom />} />
               <Route path="/role" element={<RoleAction />} />
               <Route path="/interview/:id" element={<InterviewRoom />} />
               <Route path="/interview/room/setup" element={<Setup />} />

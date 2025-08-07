@@ -5,8 +5,8 @@ import { useNavigate } from "react-router-dom";
 
 function ProblemSet() {
   const { getProblems } = useProblem();
-  const [problems, setProblems] = useState([]);
   const navigate = useNavigate();
+  const [problems, setProblems] = useState([]);
 
   useEffect(() => {
     const fetchProblems = async () => {

@@ -1,10 +1,13 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import uuid from "react-uuid";
 // import { useHistory } from "react-router-dom";
 // import axios from "axios";
 
 export default function CreateMeeting() {
   const navigate = useNavigate();
+  const roomId = uuid();
+  console.log(roomId);
   //   const [name, setName] = useState("");
   //   const history = useHistory();
 
@@ -29,7 +32,7 @@ export default function CreateMeeting() {
       />
       <button
         // disabled={!name.trim()}
-        onClick={() => navigate("/room")}
+        onClick={() => navigate(`/room/${roomId}`)}
         className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:opacity-50"
       >
         Create Meeting
