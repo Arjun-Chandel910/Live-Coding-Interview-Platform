@@ -12,6 +12,7 @@ import { InterviewRoom } from "./pages/Interview/InterviewRoom";
 import Setup from "./pages/Interview/Setup";
 import CreateMeeting from "./pages/Interview/CreateMeeting";
 import MeetingRoom from "./pages/Interview/MeetingRoom";
+import Whiteboard from "./Components/WhiteBoard";
 function App() {
   return (
     <div>
@@ -27,6 +28,7 @@ function App() {
               <Route path="/room/:roomId" element={<MeetingRoom />} />
               <Route path="/role" element={<RoleAction />} />
               <Route path="/interview/:id" element={<InterviewRoom />} />
+              <Route path="/whiteBoard" element={<Whiteboard />} />
               <Route path="/interview/room/setup" element={<Setup />} />
               <Route path="/problemset/:id" element={<Question />} />
             </Routes>
