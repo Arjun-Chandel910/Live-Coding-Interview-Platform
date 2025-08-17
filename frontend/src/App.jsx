@@ -7,12 +7,10 @@ import { AuthProvider } from "./context/AuthProvider";
 import { ProblemProvider } from "./context/ProblemProvider";
 import Question from "./pages/Question";
 import ProblemSet from "./pages/ProblemSet";
-import RoleAction from "./pages/Interview/RoleAction";
-import { InterviewRoom } from "./pages/Interview/InterviewRoom";
-import Setup from "./pages/Interview/Setup";
-import CreateMeeting from "./pages/Interview/CreateMeeting";
-import MeetingRoom from "./pages/Interview/MeetingRoom";
+import CreateMeeting from "./Interview/CreateMeeting";
+import MeetingRoom from "./Interview/MeetingRoom";
 import Whiteboard from "./Components/WhiteBoard";
+import VideoPanel from "./Screens/VideoPanel";
 function App() {
   return (
     <div>
@@ -26,10 +24,8 @@ function App() {
               <Route path="/problemset" element={<ProblemSet />} />
               <Route path="/create-meeting" element={<CreateMeeting />} />
               <Route path="/room/:roomId" element={<MeetingRoom />} />
-              <Route path="/role" element={<RoleAction />} />
-              <Route path="/interview/:id" element={<InterviewRoom />} />
+              <Route path="/video" element={<VideoPanel />} />
               <Route path="/whiteBoard" element={<Whiteboard />} />
-              <Route path="/interview/room/setup" element={<Setup />} />
               <Route path="/problemset/:id" element={<Question />} />
             </Routes>
           </ProblemProvider>
