@@ -1,15 +1,20 @@
+// app.js
+
 import dotenv from "dotenv";
 dotenv.config();
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
-const app = express();
+
+// Correct imports for Y.js and y-socket-io
+
 // routes
 import userRoute from "./routes/user.routes.js";
 import questionRoute from "./routes/question.routes.js";
 import testcaseRoute from "./routes/testcase.routes.js";
 import interviewRoute from "./routes/interview.routes.js";
-//
+
+const app = express();
 
 const corsOptions = {
   origin: "*",
@@ -28,7 +33,9 @@ app.use("/api/v1/interview", interviewRoute);
 
 import { createServer } from "http";
 import { Server } from "socket.io";
+
 import initInterviewSocket from "./socket/interview.socket.js";
+
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
@@ -49,11 +56,15 @@ app.use((err, req, res, next) => {
 });
 
 const connect = async () => {
-  await mongoose.connect(process.env.MONGO_URL);
-  console.log("DB connected");
-  server.listen(process.env.PORT || 8000, () => {
-    console.log("Listing to PORT 8000");
-  });
+  try {
+    await mongoose.connect(process.env.MONGO_URL);
+    console.log("DB connected");
+    server.listen(process.env.PORT || 8000, () => {
+      console.log("Listening to PORT 8000");
+    });
+  } catch (error) {
+    console.error("Failed to connect to DB or start server:", error);
+  }
 };
 
 connect();

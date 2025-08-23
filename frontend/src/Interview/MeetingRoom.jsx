@@ -8,7 +8,9 @@ import DrawIcon from "@mui/icons-material/Draw";
 import LinkIcon from "@mui/icons-material/Link";
 import Editor from "@monaco-editor/react";
 import axios from "axios";
+
 import { useParams } from "react-router-dom";
+import { HocuspocusProvider } from "@hocuspocus/provider";
 
 import InvModal from "../utils/InvModal.jsx";
 import WhiteBoard from "../Components/WhiteBoard.jsx";
@@ -32,6 +34,9 @@ import {
   registerOnRemoteStreamAvailable,
   getRemoteStream,
 } from "../services/webrtcService.js";
+
+import * as Y from "yjs";
+import { MonacoBinding } from "y-monaco";
 
 const { VITE_API_URL } = import.meta.env;
 
@@ -164,6 +169,20 @@ export default function MeetingRoom() {
 
   function handleEditorDidMount(editor) {
     editorRef.current = editor;
+    const doc = new Y.Doc();
+    const provider = new HocuspocusProvider({
+      url: "ws://localhost:1234",
+      name: roomId, // Use the 'name' option for the room ID
+      document: doc,
+    });
+
+    const type = doc.getText("monaco");
+    const monacoBinding = new MonacoBinding(
+      type,
+      editor.getModel(),
+      new Set([editor]),
+      provider.awareness // Use the Hocuspocus provider's awareness
+    );
   }
 
   const openDrawingPad = () => emitEvent("start-drawing", roomId);
