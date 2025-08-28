@@ -5,7 +5,7 @@ import "./index.css";
 import App from "./App.jsx";
 
 createRoot(document.getElementById("root")).render(
-  <GoogleOAuthProvider clientId="26405571332-86pnk8kj9hj8b5j8sgrlnjrmoibm9son.apps.googleusercontent.com">
+  <GoogleOAuthProvider clientId={`${import.meta.env.VITE_GOOGLE_CLIENT_ID}`}>
     <App />
   </GoogleOAuthProvider>
 );

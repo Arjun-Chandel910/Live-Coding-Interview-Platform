@@ -26,7 +26,7 @@ const InterviewQuestion = ({ selectedProblem, setSelectedProblem }) => {
   // Fetch details of selected problem
   useEffect(() => {
     const fetchProblem = async () => {
-      if (selectedId && selectedId !== "custom") {
+      if (selectedId && selectedId !== "custom" && selectedId !== "default") {
         try {
           const prob = await getParticularProblem(selectedId);
           setSelectedProblem(prob || null);
@@ -53,7 +53,7 @@ const InterviewQuestion = ({ selectedProblem, setSelectedProblem }) => {
           value={selectedId}
           onChange={(e) => setSelectedId(e.target.value)}
         >
-          <option value="">Select a Problem</option>
+          <option value="default">Select a Problem</option>
           <option value="custom">Type a Custom Question</option>
           {problems.map((p) => (
             <option key={p._id} value={p._id}>

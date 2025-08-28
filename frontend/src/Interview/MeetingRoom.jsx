@@ -73,7 +73,11 @@ export default function MeetingRoom() {
     setCode(value);
   };
   useEffect(() => {
-    setCode(startCode[language] || "");
+    if (selectedProblem == null) {
+      setCode("");
+    } else {
+      setCode(startCode[language] || "");
+    }
     setLanguageId(langMap[language] || 63);
   }, [language, startCode]);
   const langMap = {
@@ -285,6 +289,7 @@ export default function MeetingRoom() {
                   <InterviewQuestion
                     selectedProblem={selectedProblem}
                     setSelectedProblem={setSelectedProblem}
+                    setCode={setCode}
                   />
                 </div>
               </Panel>
@@ -292,7 +297,7 @@ export default function MeetingRoom() {
               {/* Code Editor Panel */}
               <Panel minSize={30} defaultSize={65} className="h-full">
                 <div className="h-full bg-gray-800 p-0 flex flex-col rounded-r-lg overflow-hidden">
-                  {/* Top bar above editor: language selector and run button */}
+                  {/* top bar above editor: language selector and run button */}
                   <div className="flex items-center justify-between px-3 py-2 bg-gray-900 border-b border-gray-700">
                     <FormControl size="small">
                       <select value={language} onChange={handleLanguageChange}>
