@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useProblem } from "../context/ProblemProvider";
 import Editor from "@monaco-editor/react";
-import axios from "axios";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
+import axios from "axios";
 
 // Setup Buffer
 import { Buffer as NodeBuffer } from "buffer";
@@ -22,7 +22,7 @@ const decode = (b64) => {
 };
 
 export default function Question() {
-  const { getParticularProblem } = useProblem();
+  const { getParticularProblem, handleSubmission, output } = useProblem();
   const id = useLocation().state?.id;
 
   const [problem, setProblem] = useState(null);
@@ -32,7 +32,6 @@ export default function Question() {
   const [languageId, setLanguageId] = useState(63);
   const [code, setCode] = useState("");
   const [testcases, setTestcases] = useState([]);
-  const [output, setOutput] = useState([]);
 
   const langMap = {
     javascript: 63,
@@ -65,52 +64,11 @@ export default function Question() {
   }, [problem]);
 
   const handleLanguageChange = (e) => setLanguage(e.target.value);
-
   const handleEditorChange = (value) => setCode(value);
 
-  const handleSubmission = async () => {
-    const hiddenTemplate = hiddenCode[language] || "";
-    const placeholder =
-      language === "python" ? "# USER CODE HERE" : "// USER CODE HERE";
-    const finalCode = hiddenTemplate.replace(placeholder, code);
-
-    const requests = testcases.map((tc) =>
-      axios.post(
-        "https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=true&wait=true",
-        {
-          language_id: languageId,
-          source_code: Buffer.from(finalCode).toString("base64"),
-          stdin: Buffer.from(tc.input).toString("base64"),
-          expected_output: Buffer.from(tc.output).toString("base64"),
-        },
-        {
-          headers: {
-            "x-rapidapi-host": "judge0-ce.p.rapidapi.com",
-            "x-rapidapi-key":
-              "f142d4cf1fmsh14de6dd58e8ab73p1d4c63jsnb7df3fcbb12f",
-            "content-type": "application/json",
-          },
-        }
-      )
-    );
-
-    try {
-      const responses = await Promise.all(requests);
-      const results = responses.map((res, idx) => ({
-        testcase: idx + 1,
-        status: res.data.status.description,
-        stdout: decode(res.data.stdout),
-        stderr: decode(res.data.stderr),
-        message: decode(res.data.message),
-        expected: testcases[idx]?.output,
-      }));
-      setOutput(results);
-    } catch (err) {
-      console.error("Error during individual test submissions", err);
-      setOutput([{ status: "Error", message: "Submission failed" }]);
-    }
+  const handleRun = () => {
+    handleSubmission(hiddenCode, code, language, testcases, languageId);
   };
-
   if (!problem) {
     return (
       <div className="h-screen flex justify-center items-center text-white bg-[#0d1117]">
@@ -170,7 +128,7 @@ export default function Question() {
 
                   <button
                     className="bg-green-600 px-4 py-1 rounded hover:bg-green-700"
-                    onClick={handleSubmission}
+                    onClick={handleRun}
                   >
                     Submit
                   </button>

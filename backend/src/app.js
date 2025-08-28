@@ -66,5 +66,4 @@ const connect = async () => {
     console.error("Failed to connect to DB or start server:", error);
   }
 };
-
 connect();

@@ -4,8 +4,8 @@ import { Box, Typography, Chip, Paper } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
 function ProblemSet() {
-  const { getProblems } = useProblem();
   const navigate = useNavigate();
+  const { getProblems, getParticularProblem } = useProblem();
   const [problems, setProblems] = useState([]);
 
   useEffect(() => {

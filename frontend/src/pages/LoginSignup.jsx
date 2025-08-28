@@ -7,7 +7,7 @@ import { showError, showSuccess } from "../utils/Toastify";
 import { useAuth } from "../context/AuthProvider";
 
 function LoginSignup() {
-  const { loginJwt, register } = useAuth();
+  const { loginJwt, register, setAuthToken } = useAuth();
   const navigate = useNavigate();
 
   const [isLogin, setIsLogin] = useState(true);
@@ -34,6 +34,7 @@ function LoginSignup() {
         );
         if (response.status === 200) {
           localStorage.setItem("auth-token", response.data.token);
+          setAuthToken(response.data.token);
           showSuccess("Login successful.");
           navigate("/");
         } else {

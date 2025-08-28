@@ -4,7 +4,8 @@ import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import Modal from "@mui/material/Modal";
 import TextField from "@mui/material/TextField";
-import axios from "axios";
+
+import LinkIcon from "@mui/icons-material/Link";
 const style = {
   position: "absolute",
   top: "50%",
@@ -26,18 +27,14 @@ const InvModal = ({ sendInvite, roomId }) => {
   const handleClose = () => setOpen(false);
 
   const handleSendInvite = () => {
-    // Example placeholder for the invite sending logic
     sendInvite(recipientEmail, roomId, senderName);
-
-    // Add your API call here
-    // await axios.post('/api/send-invite', { recipientEmail, senderName })
-
-    handleClose(); // Close modal after sending
+    handleClose();
   };
 
   return (
     <div>
-      <Button onClick={handleOpen}>Invite</Button>
+      <LinkIcon className="text-white mr-1" onClick={handleOpen} />
+
       <Modal
         open={open}
         onClose={handleClose}

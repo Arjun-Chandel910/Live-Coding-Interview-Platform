@@ -1,8 +1,10 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { ParallaxProvider } from "react-scroll-parallax";
+import { useAuth } from "../context/AuthProvider";
 
 function LandingPage() {
+  const { authtoken, setAuthtoken, logout } = useAuth();
   const navigate = useNavigate();
 
   return (
@@ -25,12 +27,20 @@ function LandingPage() {
             >
               Start Interview
             </button>
-            <button
-              onClick={() => navigate("/login")}
-              className="hover:underline"
-            >
-              Login
-            </button>
+
+            {/* Show Login or Logout depending on token */}
+            {!authtoken ? (
+              <button
+                onClick={() => navigate("/login")}
+                className="hover:underline"
+              >
+                Login
+              </button>
+            ) : (
+              <button onClick={logout} className="hover:underline">
+                Logout
+              </button>
+            )}
           </div>
         </nav>
 
